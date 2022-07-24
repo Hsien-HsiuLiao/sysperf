@@ -1,6 +1,9 @@
 use std::io;
 use sysinfo::{NetworkExt, NetworksExt, ProcessExt, System, SystemExt};
-use sysperf::*;
+use sysperf::vmstat::get_vmstat;
+use sysperf::iostat::get_iostat;
+use sysperf::cpustat::get_cpustat;
+use sysperf::netstat::get_netstat;
 
 fn main() {
     // Please note that we use "new_all" to ensure that all list of
@@ -11,22 +14,7 @@ fn main() {
     // First we update all information of our `System` struct.
     sys.refresh_all();
 
-    // We display all disks' information:
-    println!("=> disks:");
-    for disk in sys.disks() {
-        println!("{:?}", disk);
-    }
-
-    // Network interfaces name, data received and data transmitted:
-    println!("=> networks:");
-    for (interface_name, data) in sys.networks() {
-        println!(
-            "{}: {}/{} B",
-            interface_name,
-            data.received(),
-            data.transmitted()
-        );
-    }
+    
 
     // Components temperature:
     println!("=> components:");
@@ -34,22 +22,13 @@ fn main() {
         println!("{:?}", component);
     }
 
-    println!("=> system:");
-    // RAM and swap information:
-    println!("total memory: {} KB", sys.total_memory());
-    println!("used memory : {} KB", sys.used_memory());
-    println!("total swap  : {} KB", sys.total_swap());
-    println!("used swap   : {} KB", sys.used_swap());
-
     // Display system information:
     println!("System name:             {:?}", sys.name());
     println!("System kernel version:   {:?}", sys.kernel_version());
     println!("System OS version:       {:?}", sys.os_version());
     println!("System host name:        {:?}", sys.host_name());
 
-    // Number of processors:
-    println!("NB processors: {}", sys.processors().len());
-
+    
     // Display processes ID, name na disk usage:
     for (pid, process) in sys.processes() {
         println!(
@@ -68,9 +47,11 @@ fn main() {
         .expect("failed to read line");
 
     match input.trim() {
-        "vmstat" => { 
-            get_vmstat()
-        }
+        "vmstat" => get_vmstat(sys),
+        "iostat" => get_iostat(sys),
+        "cpustat" => get_cpustat(sys),
+        "netstat" => get_netstat(sys),
+        
         _ => println!("_ {}", input.as_str())
     }
 

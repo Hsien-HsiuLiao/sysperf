@@ -1,3 +1,4 @@
-pub fn get_vmstat() {
-    println!("get vmstat");
-}
+pub mod vmstat;
+pub mod cpustat;
+pub mod iostat;
+pub mod netstat;
